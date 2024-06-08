@@ -47,13 +47,6 @@ public class AspectParser {
         // пробуем создать объект
         // если ошибка: логируем, передаем управление и выбрасываем исключение
         NotificationTask notificationTask = new NotificationTask(chatID, task, localTime, localDate);
-//        try {
-//            notificationTask = new NotificationTask(chatID, task, localTime, localDate);
-//        } catch (IllegalArgumentException e) {
-//            logger.error(e.getMessage());
-//            joinPoint.proceed();
-//            throw new IllegalArgumentException(e.getMessage());
-//        }
         // создаем новый список аргументов и передаем дальше управление
         Object[] newArgs = {update, notificationTask};
         joinPoint.proceed(newArgs);

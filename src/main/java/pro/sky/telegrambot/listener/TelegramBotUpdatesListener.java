@@ -31,19 +31,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     @Override
     public int process(List<Update> updates) {
-        try {
-            for (Update update : updates) {
-                String msg = update.message().text();
-                boolean isCommand = msg.split(" ")[0].startsWith("/");
-                if (isCommand) {
-                    handlerUpdateService.handleUpdateCommand(update);
-                } else {
-                    handlerUpdateService.handleUpdateMsg(update, null);
-                }
+        updates.forEach(update -> {
+            String msg = update.message().text();
+            boolean isCommand = msg.split(" ")[0].startsWith("/");
+            if (isCommand) {
+                handlerUpdateService.handleUpdateCommand(update);
+            } else {
+                handlerUpdateService.handleUpdateMsg(update, null);
             }
-        } catch (IllegalArgumentException e) {
-            return UpdatesListener.CONFIRMED_UPDATES_ALL;
-        }
+        });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 

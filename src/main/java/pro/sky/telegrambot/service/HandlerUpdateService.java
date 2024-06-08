@@ -26,15 +26,6 @@ public class HandlerUpdateService {
         String msg = update.message().text();
         // создаем опшионал из переданного аргумента
         Optional<NotificationTask> optionalNotificationTask = Optional.ofNullable(task);
-        // если значения нет, то уведомляем пользователя о некорректном формате
-        // и выбрасываем исключение
-//        task = optionalNotificationTask.orElseThrow(() -> {
-//            SendMessage request = new SendMessage(chatID, "Ваше напоминание не сохранено" +
-//                    "\nВы передали: " + msg +
-//                    "\nОжидаемый формат: " + "dd.mm.yyyy hh:mm text");
-//            bot.execute(request);
-//            return new IllegalArgumentException("Ooops");
-//        });
         // сохраняем в бд
         saveTask(task);
         // информируем пользоватея что все прошло успешно
