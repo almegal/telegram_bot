@@ -11,11 +11,11 @@ import java.time.LocalTime;
 
 @Entity
 public class NotificationTask {
-    private final long chat_id;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull
     private long id;
+    private long chat_id;
     @NotNull
     private boolean is_active;
     @NotNull
@@ -26,6 +26,9 @@ public class NotificationTask {
     private LocalDateTime created_at;
     @NotNull
     private String task;
+
+    public NotificationTask() {
+    }
 
     public NotificationTask(long chat_id,
                             String task,
