@@ -31,6 +31,9 @@ public class NotificationTask {
                             String task,
                             LocalTime notification_time,
                             LocalDate notification_date) {
+        if (notification_date != null && notification_date.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Дата не может быть раньше текущей");
+        }
         this.chat_id = chat_id;
         this.notification_time = notification_time;
         this.notification_date = notification_date;
