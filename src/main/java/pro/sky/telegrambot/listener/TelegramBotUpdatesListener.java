@@ -16,7 +16,6 @@ import java.util.List;
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
-
     @Autowired
     private TelegramBot telegramBot;
     private HandlerUpdateService handlerUpdateService;
@@ -32,10 +31,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     @Override
     public int process(List<Update> updates) {
-        updates.forEach(update -> {
-            logger.info("Processing update: {}", update);
-            handlerUpdateService.handleUpdate(update);
-        });
+        try {
+            for (Update update : updates) {
+                String msg = update.message().text();
+                boolean isCommand = msg.split(" ")[0].startsWith("/");
+                if (isCommand) {
+                    handlerUpdateService.handleUpdateCommand(update);
+                } else {
+                    handlerUpdateService.handleUpdateMsg(update, null);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
+        }
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
