@@ -3,6 +3,7 @@ package pro.sky.telegrambot.listener;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.forEach(update -> {
             String msg = update.message().text();
             boolean isCommand = msg.split(" ")[0].startsWith("/");
+            SendMessage sendMessage;
             if (isCommand) {
-                handlerUpdateService.handleUpdateCommand(update);
+                sendMessage = handlerUpdateService.handleUpdateCommand(update);
+                telegramBot.execute(sendMessage);
             } else {
-                handlerUpdateService.handleUpdateMsg(update, null);
+                sendMessage = handlerUpdateService.handleUpdateMsg(update, null);
+                telegramBot.execute(sendMessage);
             }
+//            telegramBot.execute(sendMessage);
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }

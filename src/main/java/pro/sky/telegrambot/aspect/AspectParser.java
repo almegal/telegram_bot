@@ -22,7 +22,7 @@ public class AspectParser {
     private Logger logger = LoggerFactory.getLogger(AspectParser.class);
 
     @Around("execution(* pro.sky.telegrambot.service.HandlerUpdateService.handleUpdateMsg(..))")
-    public void parserMessage(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object parserMessage(ProceedingJoinPoint joinPoint) throws Throwable {
         Update update = (Update) joinPoint.getArgs()[0];
         // получаем идентификатор чата и сообщение
         long chatID = update.message().chat().id();
@@ -45,11 +45,10 @@ public class AspectParser {
         LocalTime localTime = parseTime(matcher.group(2));
         String task = matcher.group(3);
         // пробуем создать объект
-        // если ошибка: логируем, передаем управление и выбрасываем исключение
         NotificationTask notificationTask = new NotificationTask(chatID, task, localTime, localDate);
         // создаем новый список аргументов и передаем дальше управление
         Object[] newArgs = {update, notificationTask};
-        joinPoint.proceed(newArgs);
+        return joinPoint.proceed(newArgs);
     }
 
     private LocalDate parseDate(String dateString) {
