@@ -15,38 +15,41 @@ public class NotificationTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull
     private long id;
-    private long chat_id;
+    private long chatId;
     @NotNull
-    private boolean is_active;
+    private boolean isActive;
     @NotNull
-    private LocalTime notification_time;
+    private LocalTime notificationTime;
     @NotNull
-    private LocalDate notification_date;
+    private LocalDate notificationDate;
     @NotNull
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
     @NotNull
     private String task;
 
     public NotificationTask() {
     }
 
-    public NotificationTask(long chat_id,
+    public NotificationTask(long chatId,
                             String task,
-                            LocalTime notification_time,
-                            LocalDate notification_date) {
-        if (notification_date != null && notification_date.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Дата не может быть раньше текущей");
+                            LocalTime notificationTime,
+                            LocalDate notificationDate) {
+        if (notificationDate != null && notificationDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Дата и время не может быть раньше текущей");
         }
-        this.chat_id = chat_id;
-        this.notification_time = notification_time;
-        this.notification_date = notification_date;
+        if (notificationTime != null && notificationTime.isBefore(LocalTime.now())) {
+            throw new IllegalArgumentException("Дата и время не может быть раньше текущей");
+        }
+        this.chatId = chatId;
+        this.notificationTime = notificationTime;
+        this.notificationDate = notificationDate;
         this.task = task;
-        this.is_active = true;
-        this.created_at = LocalDateTime.now();
+        this.isActive = true;
+        this.createdAt = LocalDateTime.now();
     }
 
-    public long getChat_id() {
-        return chat_id;
+    public long getChatId() {
+        return chatId;
     }
 
     public long getId() {
@@ -57,36 +60,36 @@ public class NotificationTask {
         this.id = id;
     }
 
-    public boolean isIs_active() {
-        return is_active;
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setIs_active(boolean is_active) {
-        this.is_active = is_active;
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 
-    public LocalTime getNotification_time() {
-        return notification_time;
+    public LocalTime getNotificationTime() {
+        return notificationTime;
     }
 
-    public void setNotification_time(LocalTime notification_time) {
-        this.notification_time = notification_time;
+    public void setNotificationTime(LocalTime notificationTime) {
+        this.notificationTime = notificationTime;
     }
 
-    public LocalDate getNotification_date() {
-        return notification_date;
+    public LocalDate getNotificationDate() {
+        return notificationDate;
     }
 
-    public void setNotification_date(LocalDate notification_date) {
-        this.notification_date = notification_date;
+    public void setNotificationDate(LocalDate notificationDate) {
+        this.notificationDate = notificationDate;
     }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getTask() {

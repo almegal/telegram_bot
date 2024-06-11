@@ -43,7 +43,7 @@ public class NotificationReminderService {
         tasks.stream()
                 .parallel()
                 .forEach(t -> {
-                    SendMessage sendMessage = new SendMessage(t.getChat_id(), "Напоминаю:\n" + t.getTask());
+                    SendMessage sendMessage = new SendMessage(t.getChatId(), "Напоминаю:\n" + t.getTask());
                     bot.execute(sendMessage);
                 });
     }
