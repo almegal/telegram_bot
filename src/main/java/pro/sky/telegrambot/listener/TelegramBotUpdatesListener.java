@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pro.sky.telegrambot.model.NotificationTask;
 import pro.sky.telegrambot.service.HandlerUpdateService;
 
 import javax.annotation.PostConstruct;
@@ -17,9 +18,10 @@ import java.util.List;
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private final HandlerUpdateService handlerUpdateService;
+
     @Autowired
     private TelegramBot telegramBot;
-    private HandlerUpdateService handlerUpdateService;
 
     public TelegramBotUpdatesListener(HandlerUpdateService handlerUpdateService) {
         this.handlerUpdateService = handlerUpdateService;
@@ -30,20 +32,25 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         telegramBot.setUpdatesListener(this);
     }
 
+    // реализуем метод обработки входящих сообщений
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
+            // получаем id и содержание сообщения
+            long chatId = update.message().chat().id();
             String msg = update.message().text();
+            // проверяем с чего начинается строка
             boolean isCommand = msg.split(" ")[0].startsWith("/");
             SendMessage sendMessage;
             if (isCommand) {
-                sendMessage = handlerUpdateService.handleUpdateCommand(update);
-                telegramBot.execute(sendMessage);
+                // если команда обрабатываем как команду
+                sendMessage = handlerUpdateService.handleUpdateCommand(chatId, msg);
             } else {
-                sendMessage = handlerUpdateService.handleUpdateMsg(update, null);
-                telegramBot.execute(sendMessage);
+                // иначе обрабатываем сообщение
+                sendMessage = handlerUpdateService.handleUpdateMsg(chatId, msg, new NotificationTask());
             }
-//            telegramBot.execute(sendMessage);
+            // отправляем обратно
+            telegramBot.execute(sendMessage);
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }

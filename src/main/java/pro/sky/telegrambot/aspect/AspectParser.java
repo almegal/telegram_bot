@@ -1,6 +1,5 @@
 package pro.sky.telegrambot.aspect;
 
-import com.pengrad.telegrambot.model.Update;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,28 +14,32 @@ import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * Аспект преобразует строку в задачу для напоминаяния
+ * */
 @Aspect
 @Component
 public class AspectParser {
 
-    private Logger logger = LoggerFactory.getLogger(AspectParser.class);
+    private final Logger logger = LoggerFactory.getLogger(AspectParser.class);
 
     @Around("execution(* pro.sky.telegrambot.service.HandlerUpdateService.handleUpdateMsg(..))")
     public Object parserMessage(ProceedingJoinPoint joinPoint) throws Throwable {
-        Update update = (Update) joinPoint.getArgs()[0];
         // получаем идентификатор чата и сообщение
-        long chatID = update.message().chat().id();
-        String message = update.message().text();
+        long chatId = (long) joinPoint.getArgs()[0];
+        String msg = (String) joinPoint.getArgs()[1];
         // Регулярное выражение для разбора строки
         String regex = "(\\d{2}\\.\\d{2}\\.\\d{4})\\s+(\\d{2}:\\d{2})\\s+(.+)";
         // Создание шаблона и сопоставителя
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(message);
+        Matcher matcher = pattern.matcher(msg);
         // если не совпадает шаблону
         // логируем, передаем управление и выбрасываем ошибку
         if (!matcher.matches()) {
-            IllegalArgumentException ex = new IllegalArgumentException("Некооректные данные: " + message);
-            logger.error(ex.getMessage());
+            IllegalArgumentException ex = new IllegalArgumentException("Передан некорректный формат: " + msg + "; " +
+                    "Ожидается: dd.mm.yyyy hh:mm text");
+//            logger.error(ex.getMessage());
+            // возращаем управление
             joinPoint.proceed();
             throw ex;
         }
@@ -45,17 +48,25 @@ public class AspectParser {
         LocalTime localTime = parseTime(matcher.group(2));
         String task = matcher.group(3);
         // пробуем создать объект
-        NotificationTask notificationTask = new NotificationTask(chatID, task, localTime, localDate);
-        // создаем новый список аргументов и передаем дальше управление
-        Object[] newArgs = {update, notificationTask};
-        return joinPoint.proceed(newArgs);
+        try {
+            NotificationTask notificationTask = new NotificationTask(chatId, task, localTime, localDate);
+            // создаем новый список аргументов и передаем дальше управление
+            Object[] newArgs = {chatId, msg, notificationTask};
+            return joinPoint.proceed(newArgs);
+        } catch (IllegalArgumentException ex) {
+//            logger.error(ex.getMessage());
+            joinPoint.proceed();
+            throw new IllegalArgumentException(ex.getMessage());
+        }
     }
 
+    // метод для получаения даты
     private LocalDate parseDate(String dateString) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         return LocalDate.parse(dateString, dateFormatter);
     }
 
+    // метод для получаения времени
     private LocalTime parseTime(String timeString) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return LocalTime.parse(timeString, timeFormatter);
