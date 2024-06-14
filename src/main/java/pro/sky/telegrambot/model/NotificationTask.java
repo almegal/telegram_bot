@@ -5,9 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 public class NotificationTask {
@@ -19,9 +18,7 @@ public class NotificationTask {
     @NotNull
     private boolean isActive;
     @NotNull
-    private LocalTime notificationTime;
-    @NotNull
-    private LocalDate notificationDate;
+    private LocalDateTime notificationDateTime;
     @NotNull
     private LocalDateTime createdAt;
     @NotNull
@@ -32,32 +29,44 @@ public class NotificationTask {
 
     public NotificationTask(long chatId,
                             String task,
-                            LocalTime notificationTime,
-                            LocalDate notificationDate) {
-        if (notificationDate != null && notificationDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Дата и время не может быть раньше текущей");
-        }
-        if (notificationTime != null && notificationTime.isBefore(LocalTime.now())) {
-            throw new IllegalArgumentException("Дата и время не может быть раньше текущей");
-        }
+                            LocalDateTime notificationDateTime) {
+
         this.chatId = chatId;
-        this.notificationTime = notificationTime;
-        this.notificationDate = notificationDate;
         this.task = task;
         this.isActive = true;
         this.createdAt = LocalDateTime.now();
+        // вызовим приватный сеттер с валидацией для установки дата и времени
+        setDateAndTime(notificationDateTime);
     }
 
-    public long getChatId() {
-        return chatId;
+    private void setDateAndTime(LocalDateTime notificationDateTime) {
+        // проверим что параметр не равен null
+        Objects.requireNonNull(notificationDateTime, "Дата и время не может быть null");
+        // валидация параметра
+        validateNotificationDateTime(notificationDateTime);
+        // присвоить значение
+        this.notificationDateTime = notificationDateTime;
+    }
+
+    private void validateNotificationDateTime(LocalDateTime notificationDateTime) {
+        // получаем текущее дата и время
+        LocalDateTime now = LocalDateTime.now();
+        // переданные дата и время раньше чем сейчас то выбрасим исключение
+        if (notificationDateTime.isBefore(now)) {
+            throw new IllegalArgumentException("Дата и время не может быть раньше текущей");
+        }
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(long chatId) {
+        this.chatId = chatId;
     }
 
     public boolean isActive() {
@@ -65,23 +74,15 @@ public class NotificationTask {
     }
 
     public void setActive(boolean active) {
-        this.isActive = active;
+        isActive = active;
     }
 
-    public LocalTime getNotificationTime() {
-        return notificationTime;
+    public LocalDateTime getNotificationDateTime() {
+        return notificationDateTime;
     }
 
-    public void setNotificationTime(LocalTime notificationTime) {
-        this.notificationTime = notificationTime;
-    }
-
-    public LocalDate getNotificationDate() {
-        return notificationDate;
-    }
-
-    public void setNotificationDate(LocalDate notificationDate) {
-        this.notificationDate = notificationDate;
+    public void setNotificationDateTime(LocalDateTime notificationDateTime) {
+        this.notificationDateTime = notificationDateTime;
     }
 
     public LocalDateTime getCreatedAt() {
