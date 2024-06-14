@@ -1,12 +1,14 @@
 package pro.sky.telegrambot.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambot.model.NotificationTask;
 
 import java.time.LocalDate;
@@ -14,21 +16,18 @@ import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class AspectParserUnitTest {
 
     private final long VALID_ID = 12345L;
     private final String VALID_MESSAGE = "12.06.2025 14:00 Напоминание сделать до 13:00 что нибудь важное";
 
-    private AspectParser aspectParser;
-    private ProceedingJoinPoint proceedingJoinPoint;
-
-    @BeforeEach
-    public void setUp() {
-        aspectParser = new AspectParser();
-        proceedingJoinPoint = mock(ProceedingJoinPoint.class);
-    }
+    private final AspectParser aspectParser = new AspectParser();
+    @Mock
+    private ProceedingJoinPoint proceedingJoinPointMock;
 
     /*Тест проверяет что при валидном сообщение
      * передается управление с правильными параметрами
@@ -37,15 +36,16 @@ public class AspectParserUnitTest {
     @DisplayName("Тестируем аспект с валидным сообщением")
     public void testValidMessageParsing() throws Throwable {
         // Настройка тестовых данных
-
         Object[] args = {VALID_ID, VALID_MESSAGE};
 
         // Настройка mock поведения ProceedingJoinPoint
-        when(proceedingJoinPoint.getArgs()).thenReturn(args);
-        when(proceedingJoinPoint.proceed(any(Object[].class))).thenReturn("Success");
+        given(proceedingJoinPointMock.getArgs()).willReturn(args);
+//        when(proceedingJoinPointMock.getArgs()).thenReturn(args);
+        given(proceedingJoinPointMock.proceed(any(Object[].class))).willReturn("Success");
+//        when(proceedingJoinPointMock.proceed(any(Object[].class))).thenReturn("Success");
 
         // Выполнение теста
-        Object result = aspectParser.parserMessage(proceedingJoinPoint);
+        Object result = aspectParser.parserMessage(proceedingJoinPointMock);
 
         // Проверка результата
         assertEquals("Success", result);
@@ -53,7 +53,7 @@ public class AspectParserUnitTest {
         // Проверка аргументов, переданных в proceed
         ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
         // Проверка что вызова метода для передачи управления
-        verify(proceedingJoinPoint, times(1)).proceed(argumentCaptor.capture());
+        verify(proceedingJoinPointMock, times(1)).proceed(argumentCaptor.capture());
 
         //  Получаем новые аргументы из аспекта
         Object[] capturedArgs = argumentCaptor.getValue();
@@ -81,36 +81,37 @@ public class AspectParserUnitTest {
     @DisplayName("Тестируем аспект с некорректным входным сообщением")
     public void testInvalidMessageParsing(String invalidMessage) throws Throwable {
         Object[] args = {VALID_ID, invalidMessage};
-
-        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        // настройка поведения мока
+        when(proceedingJoinPointMock.getArgs()).thenReturn(args);
 
         // Проверка выброса исключения
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> aspectParser.parserMessage(proceedingJoinPoint)
+                () -> aspectParser.parserMessage(proceedingJoinPointMock)
         );
 
         assertEquals("Передан некорректный формат: " + invalidMessage + "; Ожидается: dd.mm.yyyy hh:mm text",
                 exception.getMessage());
 
         // Убедитесь, что метод proceed был вызван для возврата управления
-        verify(proceedingJoinPoint, times(1)).proceed();
+        verify(proceedingJoinPointMock, times(1)).proceed();
     }
+
     /* Тест проверяет что при корректном формате и не правильным датой/временем
      * при попытке создать таск выбрасывает исключение
      * */
     @ParameterizedTest
     @ValueSource(strings = {"12.02.2024 15:00 Что-то не важное",
-            "11.06.2024 07:13 Напоминание"})
+            "14.06.2024 07:13 Напоминание"})
     public void testWhenDateOrTimeLessThanNow(String invalidMessage) {
         // подготовка входных данных
         Object[] args = {VALID_ID, invalidMessage};
         // настройка поведения мока
-        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPointMock.getArgs()).thenReturn(args);
         // проверка выброса исключения
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> aspectParser.parserMessage(proceedingJoinPoint)
+                () -> aspectParser.parserMessage(proceedingJoinPointMock)
         );
         assertEquals("Дата и время не может быть раньше текущей", exception.getMessage());
     }
