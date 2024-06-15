@@ -8,8 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.model.NotificationTask;
-import pro.sky.telegrambot.service.HandlerUpdateService;
+import pro.sky.telegrambot.service.HandlerMessageService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -18,13 +17,13 @@ import java.util.List;
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
-    private final HandlerUpdateService handlerUpdateService;
+    private final HandlerMessageService handlerMessageService;
 
     @Autowired
     private TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(HandlerUpdateService handlerUpdateService) {
-        this.handlerUpdateService = handlerUpdateService;
+    public TelegramBotUpdatesListener(HandlerMessageService handlerMessageService) {
+        this.handlerMessageService = handlerMessageService;
     }
 
     @PostConstruct
@@ -44,10 +43,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             SendMessage sendMessage;
             if (isCommand) {
                 // если команда обрабатываем как команду
-                sendMessage = handlerUpdateService.handleUpdateCommand(chatId, msg);
+                sendMessage = handlerMessageService.handleUpdateCommand(chatId, msg);
             } else {
                 // иначе обрабатываем сообщение
-                sendMessage = handlerUpdateService.handleUpdateMsg(chatId, msg, new NotificationTask());
+                sendMessage = handlerMessageService.handleUpdateMsg(chatId, msg);
             }
             // отправляем обратно
             telegramBot.execute(sendMessage);

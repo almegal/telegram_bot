@@ -5,32 +5,32 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambot.model.NotificationTask;
-import pro.sky.telegrambot.repository.NotificationTaskRepository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+/*Сервис для нотификации задач пользователя
+ * Реализован через механизм sheduled спринга
+ * */
 @Service
-public class NotificationReminderService {
+public class NotificationTaskReminderService {
     final private TelegramBot bot;
-    final private NotificationTaskRepository repository;
+    final private NotificationTaskService service;
 
-    public NotificationReminderService(TelegramBot bot, NotificationTaskRepository repository) {
+    public NotificationTaskReminderService(TelegramBot bot,
+                                           NotificationTaskService service) {
         this.bot = bot;
-        this.repository = repository;
+        this.service = service;
     }
+
     // запуск метода каждую минуту
     @Scheduled(cron = "0 0/1 * * * *")
     public void getNotificationTasksWhereIsTime() {
         // получить текущее дату и врем до минут
         LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDate localDate = localDateTime.toLocalDate();
-        LocalTime localTime = localDateTime.toLocalTime();
         // получаем список нотификаций
-        List<NotificationTask> tasks = repository.getByDateAndTimeNow(localDate, localTime);
+        List<NotificationTask> tasks = service.getByDateAndTimeNow(localDateTime);
         // если не пустой, то отправить нотификацию
         if (!tasks.isEmpty()) {
             sendNotificationTask(tasks);
@@ -43,6 +43,7 @@ public class NotificationReminderService {
         tasks.stream()
                 .parallel()
                 .forEach(t -> {
+                    service.deactiveTask(t.getId());
                     SendMessage sendMessage = new SendMessage(t.getChatId(), "Напоминаю:\n" + t.getTask());
                     bot.execute(sendMessage);
                 });
