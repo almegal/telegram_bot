@@ -18,6 +18,7 @@ public class NotificationTaskReminderService {
     final private TelegramBot bot;
     final private NotificationTaskService service;
 
+    // инъекция бинов
     public NotificationTaskReminderService(TelegramBot bot,
                                            NotificationTaskService service) {
         this.bot = bot;
@@ -37,9 +38,11 @@ public class NotificationTaskReminderService {
         }
     }
 
+    // метод для отправки напоминаний
     public void sendNotificationTask(List<NotificationTask> tasks) {
         // для каждой нотификации в списке
         // параллельно отправляем сообщением в чат
+        // и деактивируем задачу
         tasks.stream()
                 .parallel()
                 .forEach(t -> {

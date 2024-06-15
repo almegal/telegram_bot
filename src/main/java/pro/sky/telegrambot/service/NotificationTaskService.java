@@ -7,10 +7,13 @@ import pro.sky.telegrambot.repository.NotificationTaskRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
+// Сервис для взаимодейтсвия с БД
 @Service
 public class NotificationTaskService {
     private final NotificationTaskRepository repository;
 
+    // инъекция бинов
     public NotificationTaskService(NotificationTaskRepository repository) {
         this.repository = repository;
     }
@@ -18,11 +21,6 @@ public class NotificationTaskService {
     // сохранить задачу в бд
     public void saveTask(NotificationTask task) {
         repository.save(task);
-    }
-
-    // найти все задачи текущего чата
-    public List<NotificationTask> getActiveTask(Long chatId) {
-        return repository.findByIdWhereIsActive(chatId);
     }
 
     // получить список задач с подходящим временем

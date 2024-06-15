@@ -4,8 +4,6 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambot.service.HandlerMessageService;
@@ -13,10 +11,10 @@ import pro.sky.telegrambot.service.HandlerMessageService;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
+// Сервис принимающиц апдейты от телеграмм апи
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-
-    private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    // инъектция сервиса обработки сообщений
     private final HandlerMessageService handlerMessageService;
 
     @Autowired
@@ -46,11 +44,16 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 sendMessage = handlerMessageService.handleUpdateCommand(chatId, msg);
             } else {
                 // иначе обрабатываем сообщение
-                sendMessage = handlerMessageService.handleUpdateMsg(chatId, msg);
+                sendMessage = handlerMessageService.handleUpdateMessage(chatId, msg);
             }
-            // отправляем обратно
-            telegramBot.execute(sendMessage);
+            // если аспект не выдал ошибок
+            // значит sendMessage не равен нуля
+            // в противном случае все ошибки отработаны, а пользователь проинформирован
+            if (sendMessage != null) {
+                telegramBot.execute(sendMessage);
+            }
         });
+        // подверждаем что все апдейты обработаны
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
