@@ -1,5 +1,7 @@
 package pro.sky.telegrambot.model;
 
+import pro.sky.telegrambot.exception.DateTimeBeforeException;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -53,7 +55,9 @@ public class NotificationTask {
         LocalDateTime now = LocalDateTime.now();
         // переданные дата и время раньше чем сейчас то выбрасим исключение
         if (notificationDateTime.isBefore(now)) {
-            throw new IllegalArgumentException("Дата и время не может быть раньше текущей");
+            throw new DateTimeBeforeException("Дата и время не может быть раньше текущей." +
+                    "\nСейчас: " + now +
+                    "\nПередано: " + notificationDateTime);
         }
     }
 
