@@ -1,6 +1,7 @@
 package pro.sky.telegrambot.component;
 
 import org.springframework.stereotype.Component;
+import pro.sky.telegrambot.exception.ErrorMessage;
 import pro.sky.telegrambot.exception.MessageParseException;
 import pro.sky.telegrambot.model.NotificationTask;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,23 +31,32 @@ public class MessageParserComponent {
         // если не совпадает шаблону
         // логируем, передаем управление и выбрасываем ошибку
         if (!matcher.matches()) {
-            // возращаем управление
-            throw new MessageParseException("Передан некорректный формат: " + message + ";\n " +
-                    "Ожидается: dd.mm.yyyy hh:mm text");
+            // подготовка сообщения об ошибки
+            String errorMessage = String.format(
+                    ErrorMessage.PARSE_EXCEPTION_MESSAGE.getMessage(),
+                    message
+            );
+            // выбрасывем исключение
+            throw new MessageParseException(errorMessage);
         }
 
         // парсим дату, время и напоминание
         String dateString = matcher.group(1);
         String timeString = matcher.group(2);
         String task = matcher.group(3);
-        // получаем дату и время
-        LocalDateTime localDateTime = convertStringToLocalDateTime(dateString, timeString);
-        // вернуть значение
-        return new NotificationTask(chatId, task, localDateTime);
+
+        try {
+            // получаем дату и время
+            LocalDateTime localDateTime = convertStringToLocalDateTime(dateString, timeString);
+            // вернуть значение
+            return new NotificationTask(chatId, task, localDateTime);
+        } catch (DateTimeParseException ex) {
+            throw new MessageParseException(ErrorMessage.INVALID_DATA_TIME_PARSE_EXCEPTION_MESSAGE.getMessage());
+        }
     }
 
     // метод для получаения даты
-    private LocalDateTime convertStringToLocalDateTime(String dateString, String timeString) {
+    private LocalDateTime convertStringToLocalDateTime(String dateString, String timeString) throws DateTimeParseException {
         // Шаблон для даты
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         LocalDate localDate = LocalDate.parse(dateString, dateFormatter);
