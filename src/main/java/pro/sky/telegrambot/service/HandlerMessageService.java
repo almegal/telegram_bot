@@ -34,8 +34,8 @@ public class HandlerMessageService {
     // метод для обработки команд
     public SendMessage handleUpdateCommand(long chatId, String message) {
         // если комманда известна то передаем соответсвующие сообщение на команду
-        if (message.startsWith("/start")) {
-            return new SendMessage(chatId, "Приветсвтую");
+        if (message.equalsIgnoreCase("/start")) {
+            return new SendMessage(chatId, "Приветствую");
         // иначе выбросим исключение
         } else {
             throw new CommandNotFoundException("Неизвестная команда");
