@@ -27,14 +27,4 @@ public class NotificationTaskService {
     public List<NotificationTask> getByDateAndTimeNow(LocalDateTime localDateTime) {
         return repository.getByDateAndTimeNow(localDateTime);
     }
-
-    // деактивировать задачу
-    public void deactiveTask(Long taskId) {
-        //  получить задачу
-        NotificationTask task = repository.findById(taskId).orElse(new NotificationTask());
-        // деактивировать
-        task.setActive(false);
-        // обновить
-        repository.save(task);
-    }
 }
