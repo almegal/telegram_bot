@@ -1,6 +1,7 @@
 package pro.sky.telegrambot.model;
 
 import pro.sky.telegrambot.exception.DateTimeBeforeException;
+import pro.sky.telegrambot.exception.ErrorMessage;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Entity
@@ -36,7 +38,7 @@ public class NotificationTask {
         this.chatId = chatId;
         this.task = task;
         this.isActive = true;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         // вызовим приватный сеттер с валидацией для установки дата и времени
         setDateAndTime(notificationDateTime);
     }
@@ -52,12 +54,15 @@ public class NotificationTask {
 
     private void validateNotificationDateTime(LocalDateTime notificationDateTime) {
         // получаем текущее дата и время
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         // переданные дата и время раньше чем сейчас то выбрасим исключение
         if (notificationDateTime.isBefore(now)) {
-            throw new DateTimeBeforeException("Дата и время не может быть раньше текущей." +
-                    "\nСейчас: " + now +
-                    "\nПередано: " + notificationDateTime);
+            String errorMessage = String.format(
+                    ErrorMessage.BEFORE_DATA_TIME_EXCEPTION_MESSAGE.getMessage(),
+                    now,
+                    notificationDateTime
+            );
+            throw new DateTimeBeforeException(errorMessage);
         }
     }
 

@@ -14,12 +14,12 @@ import java.util.List;
  * Реализован через механизм sheduled спринга
  * */
 @Service
-public class NotificationTaskReminderService {
+public class ReminderNotificationTaskService {
     final private TelegramBot bot;
     final private NotificationTaskService service;
 
     // инъекция бинов
-    public NotificationTaskReminderService(TelegramBot bot,
+    public ReminderNotificationTaskService(TelegramBot bot,
                                            NotificationTaskService service) {
         this.bot = bot;
         this.service = service;

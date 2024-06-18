@@ -27,7 +27,8 @@ public class ErrorAspect {
         this.errorHandlerService = errorHandlerService;
     }
 
-    @Pointcut("execution(* pro.sky.telegrambot.service.HandlerMessageService.handleUpdateMessage(..)) || execution(* pro.sky.telegrambot.service.HandlerMessageService.handleUpdateCommand(..)) ")
+    @Pointcut("execution(* pro.sky.telegrambot.service.HandlerMessageService.handleUpdateMessage(..)) " +
+            "|| execution(* pro.sky.telegrambot.service.HandlerMessageService.handleUpdateCommand(..)) ")
     public void pointCutError() {
     }
 
