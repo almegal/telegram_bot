@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * - Что будет если инпут не некорректный?
  * - Что будет если дата или время раньше чем сейчас?
  * */
-public class MessageParserComponentTest {
+public class MessageParserComponentUnitTest {
 
     private final MessageParserComponent parser = new MessageParserComponent();
 
