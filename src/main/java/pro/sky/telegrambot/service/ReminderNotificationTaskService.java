@@ -46,7 +46,6 @@ public class ReminderNotificationTaskService {
         tasks.stream()
                 .parallel()
                 .forEach(t -> {
-                    service.deactiveTask(t.getId());
                     SendMessage sendMessage = new SendMessage(t.getChatId(), "Напоминаю:\n" + t.getTask());
                     bot.execute(sendMessage);
                 });
