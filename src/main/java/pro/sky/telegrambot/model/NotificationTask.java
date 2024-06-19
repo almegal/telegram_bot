@@ -109,4 +109,17 @@ public class NotificationTask {
     public void setTask(String task) {
         this.task = task;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NotificationTask that = (NotificationTask) o;
+        return id == that.id && chatId == that.chatId && isActive == that.isActive && Objects.equals(notificationDateTime, that.notificationDateTime) && Objects.equals(createdAt, that.createdAt) && Objects.equals(task, that.task);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, chatId, isActive, notificationDateTime, createdAt, task);
+    }
 }
