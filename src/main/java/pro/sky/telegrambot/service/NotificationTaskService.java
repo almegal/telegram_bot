@@ -19,8 +19,8 @@ public class NotificationTaskService {
     }
 
     // сохранить задачу в бд
-    public NotificationTask saveTask(NotificationTask task) {
-        return repository.save(task);
+    public void saveTask(NotificationTask task) {
+        repository.save(task);
     }
 
     // получить список задач с подходящим временем
