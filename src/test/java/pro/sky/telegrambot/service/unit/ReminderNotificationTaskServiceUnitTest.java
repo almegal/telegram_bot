@@ -1,4 +1,4 @@
-package pro.sky.telegrambot.service;
+package pro.sky.telegrambot.service.unit;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -9,25 +9,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pro.sky.telegrambot.model.NotificationTask;
+import pro.sky.telegrambot.ConfigurationTest;
+import pro.sky.telegrambot.service.NotificationTaskService;
+import pro.sky.telegrambot.service.ReminderNotificationTaskService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static pro.sky.telegrambot.ConfigurationTest.*;
 
 /* */
 @ExtendWith(MockitoExtension.class)
 public class ReminderNotificationTaskServiceUnitTest {
-    private final List<NotificationTask> MOCK_LIST_TASK = new ArrayList<>(
-            List.of(new NotificationTask(1L, "some task #1", LocalDateTime.now()),
-                    new NotificationTask(2L, "some task #2", LocalDateTime.now()),
-                    new NotificationTask(3L, "some task #3", LocalDateTime.now()))
-    );
-    private final List<NotificationTask> MOCK_EMPTY_LIST = Collections.emptyList();
 
     @Mock
     private TelegramBot bot;
