@@ -1,4 +1,4 @@
-package pro.sky.telegrambot.service;
+package pro.sky.telegrambot.service.unit;
 
 import com.pengrad.telegrambot.request.SendMessage;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambot.component.MessageParserComponent;
 import pro.sky.telegrambot.exception.CommandNotFoundException;
 import pro.sky.telegrambot.model.NotificationTask;
+import pro.sky.telegrambot.service.HandlerMessageService;
+import pro.sky.telegrambot.service.NotificationTaskService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
