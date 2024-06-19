@@ -2,15 +2,20 @@ package pro.sky.telegrambot.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambot.exception.CommandNotFoundException;
-import pro.sky.telegrambot.exception.ErrorMessage;
+import pro.sky.telegrambot.exception.DateTimeBeforeException;
 import pro.sky.telegrambot.exception.MessageParseException;
 import pro.sky.telegrambot.service.ErrorHandlerService;
+
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
 
@@ -20,39 +25,53 @@ import static org.mockito.Mockito.*;
 public class ErrorAspectUnitTest {
 
     @Mock
-    private ProceedingJoinPoint joinPointMock;
+    static private ErrorHandlerService errorHandlerService;
     @Mock
-    private ErrorHandlerService errorHandlerService;
+    private ProceedingJoinPoint joinPointMock;
     @InjectMocks
     private ErrorAspect errorAspect;
 
-    @Test
-    @DisplayName("Вызывается соответсвующий метод при MessageParseException")
-    public void invokeHandlerMessageParseExceptionWhenException() throws Throwable {
-        // настройка ожидаемого значения
-        MessageParseException thrown = new MessageParseException(ErrorMessage.PARSE_EXCEPTION_MESSAGE.getMessage());
-        // настраиваем поведение
-        when(joinPointMock.getArgs()).thenReturn(new Object[]{1L});
-        when(joinPointMock.proceed()).thenThrow(thrown);
-        // вызываем тестируемый метод
-        errorAspect.handleError(joinPointMock);
-        // тест
-        verify(errorHandlerService, times(1))
-                .handlerMessageParseException(thrown, 1L);
+    // метод возращающий аргументы: экзампляр ошибки, тест для проверки обработки
+    static Stream<Arguments> argProvider() {
+        return Stream.of(
+                Arguments.of(
+                        new DateTimeBeforeException(""),
+                        (Consumer<DateTimeBeforeException>) thrown -> {
+                            verify(errorHandlerService, times(1))
+                                    .handleDateTimeBeforeException(thrown, 1L);
+                        }),
+                Arguments.of(
+                        new MessageParseException(""),
+                        (Consumer<MessageParseException>) thrown -> {
+                            verify(errorHandlerService, times(1))
+                                    .handlerMessageParseException(thrown, 1L);
+                        }),
+                Arguments.of(
+                        new CommandNotFoundException(""),
+                        (Consumer<CommandNotFoundException>) thrown -> {
+                            verify(errorHandlerService, times(1))
+                                    .handlerCommandNotFoundException(thrown, 1L);
+                        }),
+                Arguments.of(
+                        new Throwable(""),
+                        (Consumer<Throwable>) thrown -> {
+                            verify(errorHandlerService, times(1))
+                                    .handlerThrowableException(thrown, 1L);
+                        })
+        );
     }
 
-    @Test
-    @DisplayName("Вызывается соответсвующий метод при CommandNotFoundException")
-    public void invokeHandlerCommandNotFoundWhenException() throws Throwable {
-        // настройка ожидаемого значения
-        CommandNotFoundException thrown = new CommandNotFoundException("");
+    @ParameterizedTest
+    @MethodSource("argProvider")
+    @DisplayName("Для каждого типа исключений вызывется соответсвующий метод для обработки ошибок")
+    public void invoker(Throwable thrown, Consumer<Throwable> tester) throws Throwable {
         // настройка поведения
         when(joinPointMock.getArgs()).thenReturn(new Object[]{1L});
         when(joinPointMock.proceed()).thenThrow(thrown);
-        // вызываем тестируемый метод
+        // вызываем тестируемого метода
         errorAspect.handleError(joinPointMock);
-        // тест
-        verify(errorHandlerService, times(1))
-                .handlerCommandNotFoundException(thrown, 1L);
+        // проверка результата
+        tester.accept(thrown);
     }
+
 }
