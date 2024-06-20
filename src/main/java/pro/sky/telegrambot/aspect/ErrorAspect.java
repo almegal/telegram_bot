@@ -29,13 +29,13 @@ public class ErrorAspect {
 
     @Pointcut("execution(* pro.sky.telegrambot.service.HandlerMessageService.handleUpdateMessage(..)) " +
             "|| execution(* pro.sky.telegrambot.service.HandlerMessageService.handleUpdateCommand(..)) ")
-    public void pointCutError() {
+    public void pointCutErrorHandlerMessageService() {
     }
 
     //    Для методов HandlerMessageService.handleUpdateMessage
     //    HandlerMessageService.handleUpdateCommand
     //    Вызываем аспект
-    @Around("pointCutError()")
+    @Around("pointCutErrorHandlerMessageService()")
     public Object handleError(ProceedingJoinPoint joinPoint) {
         //    Получаем первый аргумент методов
         long chatId = (long) joinPoint.getArgs()[0];

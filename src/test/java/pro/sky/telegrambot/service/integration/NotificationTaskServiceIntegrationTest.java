@@ -33,7 +33,8 @@ public class NotificationTaskServiceIntegrationTest {
         // вызываем тестируемый метод
         service.saveTask(MOCK_TASK_DEFAULT);
         // получаем сохраненную в бд задачу
-        NotificationTask actual = repository.findById(1L).orElse(new NotificationTask());
+        Long id = MOCK_TASK_DEFAULT.getId();
+        NotificationTask actual = repository.findById(id).orElse(new NotificationTask());
         // првоеряем что метод сохраения вызван 1 раз
         verify(repository, times(1)).save(MOCK_TASK_DEFAULT);
         // сверяем результаты сохраненного значенимя
